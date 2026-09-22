@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Password Analytics & Digital Logic Metrics{% endblock %}
+
+{% block content %}
+<div class="container py-5" id="dashboardMetricsContainer">
+    <!-- Header -->
+    <div class="text-center max-w-800 mx-auto mb-5">
+        <span class="badge-course mb-2">ANALYTICS & METRICS</span>
+        <h1 class="fw-bold hero-glow-title">Password Strength Dashboard</h1>
+        <p class="lead text-muted">Real-time aggregate analytics from evaluated credentials: distribution tiers, attribute compliance rates, and entropy score histograms.</p>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3 text-center h-100">
+                <small class="text-muted d-block mb-1">Total Passwords Analyzed</small>
+                <span class="fs-2 fw-bold text-white font-monospace" id="kpi-total-evals">0</span>
+                <div class="small text-info mt-1"><i class="fa-solid fa-database me-1"></i>Database Records</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3 text-center h-100">
+                <small class="text-muted d-block mb-1">Average Password Length</small>
+                <span class="fs-2 fw-bold text-info font-monospace" id="kpi-avg-length">0 chars</span>
+                <div class="small text-muted mt-1"><i class="fa-solid fa-ruler-horizontal me-1"></i>Characters count</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3 text-center h-100">
+                <small class="text-muted d-block mb-1">Secure Passwords (S + VS)</small>
+                <span class="fs-2 fw-bold text-success font-monospace" id="kpi-secure-pct">0%</span>
+                <div class="small text-muted mt-1"><i class="fa-solid fa-shield-halved me-1"></i>High Entropy Ratio</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card p-3 text-center h-100">
+                <small class="text-muted d-block mb-1">Popcount Logic Speed</small>
+                <span class="fs-2 fw-bold text-warning font-monospace">&lt; 1 ms</span>
+                <div class="small text-muted mt-1"><i class="fa-solid fa-bolt me-1"></i>O(1) Combinational Delay</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Distribution Breakdown Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3 col-6">
+            <div class="p-3 rounded-3 bg-dark border border-danger border-opacity-50 text-center">
+                <span class="logic-led led-rose mb-1"></span>
+                <div class="small text-danger fw-bold">Weak (Score 0-1)</div>
+                <div class="fs-3 fw-bold text-white font-monospace" id="kpi-weak-cnt">0</div>
+                <small class="text-muted">High Risk</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 rounded-3 bg-dark border border-warning border-opacity-50 text-center">
+                <span class="logic-led led-amber mb-1"></span>
+                <div class="small text-warning fw-bold">Medium (Score 2-3)</div>
+                <div class="fs-3 fw-bold text-white font-monospace" id="kpi-med-cnt">0</div>
+                <small class="text-muted">Moderate</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 rounded-3 bg-dark border border-info border-opacity-50 text-center">
+                <span class="logic-led led-high mb-1"></span>
+                <div class="small text-info fw-bold">Strong (Score 4)</div>
+                <div class="fs-3 fw-bold text-white font-monospace" id="kpi-strong-cnt">0</div>
+                <small class="text-muted">Resilient</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="p-3 rounded-3 bg-dark border border-success border-opacity-50 text-center">
+                <span class="logic-led led-emerald mb-1"></span>
+                <div class="small text-success fw-bold">Very Strong (Score 5)</div>
+                <div class="fs-3 fw-bold text-white font-monospace" id="kpi-vstrong-cnt">0</div>
+                <small class="text-muted">Optimal</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4">
+        <!-- Doughnut Chart: Category Distribution -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-chart-pie text-info me-2"></i>Strength Category Distribution</h5>
+                    <span class="badge bg-dark border border-secondary text-info">Ratio</span>
+                </div>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="chartCategoryDistribution"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart: Score Histogram -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-chart-column text-info me-2"></i>Logic Score Histogram (0 to 5)</h5>
+                    <span class="badge bg-dark border border-secondary text-info">Hamming Weights</span>
+                </div>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="chartScoreHistogram"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizontal Bar Chart: Attribute Fulfillment -->
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="fa-solid fa-bars-progress text-info me-2"></i>Binary Attribute Compliance Rates (%)</h5>
+                    <span class="badge bg-dark border border-secondary text-info">A, B, C, D, E Flags</span>
+                </div>
+                <p class="text-muted small mb-3">Fulfillment percentage across all evaluated samples for Length (A), Uppercase (B), Lowercase (C), Numbers (D), and Symbols (E):</p>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="chartAttributesRate"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard_charts.js') }}"></script>
+{% endblock %}

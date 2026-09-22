@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Management | Synthetic Data & CSV Processing{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center max-w-800 mx-auto mb-5">
+        <span class="badge-course mb-2">DATA PROCESSING</span>
+        <h1 class="fw-bold hero-glow-title">Dataset Management</h1>
+        <p class="lead text-muted">Generate realistic synthetic password sets or upload custom CSV files to evaluate credentials in batch using the digital logic classifier.</p>
+    </div>
+
+    <!-- Actions Panel: Upload & Synthetic Generator -->
+    <div class="row g-4 mb-5">
+        <!-- Generator -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-info fs-5"></i>
+                    <h5 class="fw-bold text-white mb-0">Generate Synthetic Dataset</h5>
+                </div>
+                <p class="text-muted small">Synthesize randomized test credentials with controlled entropy distributions across all 4 digital logic strength levels.</p>
+
+                <div class="row g-3 align-items-center mb-3">
+                    <div class="col-sm-7">
+                        <label class="form-label small text-muted">Total Passwords to Generate:</label>
+                        <select id="genCountSelect" class="form-select form-cyber">
+                            <option value="25">25 Passwords (Quick Test)</option>
+                            <option value="50" selected>50 Passwords (Standard Set)</option>
+                            <option value="100">100 Passwords (Benchmark)</option>
+                            <option value="200">200 Passwords (High Volume)</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-5 text-sm-end pt-sm-4">
+                        <button id="btnGenerateDataset" class="btn btn-cyber-primary w-100">
+                            <i class="fa-solid fa-gears me-1"></i> Generate
+                        </button>
+                    </div>
+                </div>
+
+                <small class="text-muted d-block">
+                    <i class="fa-solid fa-circle-check text-success me-1"></i>
+                    Evaluates all items through Boolean gate popcount circuit automatically.
+                </small>
+            </div>
+        </div>
+
+        <!-- CSV Uploader -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="fa-solid fa-file-csv text-info fs-5"></i>
+                    <h5 class="fw-bold text-white mb-0">Upload Custom CSV Dataset</h5>
+                </div>
+                <p class="text-muted small">Upload any CSV file containing a list of passwords (either header <code>password</code> or single column per row).</p>
+
+                <div class="mb-3">
+                    <input class="form-control form-cyber" type="file" id="csvFileInput" accept=".csv, .txt">
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="/api/download/sample-csv" class="btn btn-sm btn-cyber-secondary">
+                        <i class="fa-solid fa-download me-1"></i> Download Sample CSV
+                    </a>
+                    <button id="btnUploadCsv" class="btn btn-cyber-primary">
+                        <i class="fa-solid fa-upload me-1"></i> Parse & Classify
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Dataset Table & Export -->
+    <div class="glass-card p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h5 class="fw-bold text-info mb-1" id="datasetTitle">Active Evaluation Dataset</h5>
+                <span class="text-muted small" id="datasetSummaryText">Showing recent batch records</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="btnExportCsv" class="btn btn-cyber-secondary btn-sm">
+                    <i class="fa-solid fa-file-arrow-down me-1"></i> Export as CSV
+                </button>
+                <a href="{{ url_for('dashboard_page') }}" class="btn btn-cyber-primary btn-sm">
+                    <i class="fa-solid fa-chart-pie me-1"></i> View in Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-cyber align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Password (Masked)</th>
+                        <th>Len</th>
+                        <th>A (≥8)</th>
+                        <th>B (A-Z)</th>
+                        <th>C (a-z)</th>
+                        <th>D (0-9)</th>
+                        <th>E (Sym)</th>
+                        <th>Score</th>
+                        <th>Category</th>
+                        <th>Minterm</th>
+                    </tr>
+                </thead>
+                <tbody id="datasetTableBody">
+                    <!-- Populated via script -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentDatasetItems = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadDefaultDataset();
+
+    document.getElementById('btnGenerateDataset')?.addEventListener('click', generateDataset);
+    document.getElementById('btnUploadCsv')?.addEventListener('click', uploadCsv);
+    document.getElementById('btnExportCsv')?.addEventListener('click', exportDatasetCsv);
+});
+
+async function loadDefaultDataset() {
+    try {
+        const res = await fetch('/api/history');
+        if (!res.ok) throw new Error('Failed to load history');
+        const items = await res.json();
+        currentDatasetItems = items;
+        renderDatasetTable(items, 'Recent Evaluation History');
+    } catch (err) {
+        console.error('Error loading default dataset:', err);
+    }
+}
+
+async function generateDataset() {
+    const count = document.getElementById('genCountSelect')?.value || 50;
+    const btn = document.getElementById('btnGenerateDataset');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Generating...';
+
+    try {
+        const res = await fetch('/api/dataset/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ count: parseInt(count) })
+        });
+        if (!res.ok) throw new Error('Generation failed');
+        const data = await res.json();
+        currentDatasetItems = data.items;
+        renderDatasetTable(data.items, `Synthetically Generated Dataset (${data.items.length} records)`);
+    } catch (err) {
+        alert('Error generating dataset: ' + err.message);
+    } finally {
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-gears me-1"></i> Generate';
+    }
+}
+
+async function uploadCsv() {
+    const fileInput = document.getElementById('csvFileInput');
+    if (!fileInput || !fileInput.files.length) {
+        alert('Please select a CSV file first.');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const btn = document.getElementById('btnUploadCsv');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Parsing...';
+
+    try {
+        const res = await fetch('/api/dataset/upload', {
+            method: 'POST',
+            body: formData
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        currentDatasetItems = data.items;
+        renderDatasetTable(data.items, `Uploaded File: ${file.name} (${data.items.length} records)`);
+    } catch (err) {
+        alert('Error uploading CSV: ' + err.message);
+    } finally {
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-upload me-1"></i> Parse & Classify';
+    }
+}
+
+function renderDatasetTable(items, title) {
+    const tbody = document.getElementById('datasetTableBody');
+    if (!tbody) return;
+
+    if (title) {
+        const titleEl = document.getElementById('datasetTitle');
+        if (titleEl) titleEl.textContent = title;
+    }
+
+    const summaryEl = document.getElementById('datasetSummaryText');
+    if (summaryEl) summaryEl.textContent = `Total: ${items.length} items evaluated`;
+
+    tbody.innerHTML = '';
+    items.slice(0, 100).forEach((it, idx) => {
+        const tr = document.createElement('tr');
+        
+        let badgeClass = 'badge-strength-weak';
+        if (it.category === 'Medium') badgeClass = 'badge-strength-medium';
+        else if (it.category === 'Strong') badgeClass = 'badge-strength-strong';
+        else if (it.category === 'Very Strong') badgeClass = 'badge-strength-very-strong';
+
+        const a = it.attributes ? it.attributes.A : it.a;
+        const b = it.attributes ? it.attributes.B : it.b;
+        const c = it.attributes ? it.attributes.C : it.c;
+        const d = it.attributes ? it.attributes.D : it.d;
+        const e = it.attributes ? it.attributes.E : it.e;
+
+        tr.innerHTML = `
+            <td><code>${idx + 1}</code></td>
+            <td><strong class="text-white">${it.password_masked}</strong></td>
+            <td>${it.length}</td>
+            <td class="${a ? 'text-info fw-bold' : 'text-muted'}">${a}</td>
+            <td class="${b ? 'text-info fw-bold' : 'text-muted'}">${b}</td>
+            <td class="${c ? 'text-info fw-bold' : 'text-muted'}">${c}</td>
+            <td class="${d ? 'text-info fw-bold' : 'text-muted'}">${d}</td>
+            <td class="${e ? 'text-info fw-bold' : 'text-muted'}">${e}</td>
+            <td class="fw-bold">${it.score}</td>
+            <td><span class="${badgeClass}">${it.category}</span></td>
+            <td><span class="badge bg-dark border border-secondary">${it.minterm}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function exportDatasetCsv() {
+    if (!currentDatasetItems.length) {
+        alert('No data to export.');
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "ID,Password,Length,A,B,C,D,E,Score,Category,Minterm\n";
+
+    currentDatasetItems.forEach((it, idx) => {
+        const a = it.attributes ? it.attributes.A : it.a;
+        const b = it.attributes ? it.attributes.B : it.b;
+        const c = it.attributes ? it.attributes.C : it.c;
+        const d = it.attributes ? it.attributes.D : it.d;
+        const e = it.attributes ? it.attributes.E : it.e;
+        csvContent += `${idx + 1},"${it.password_masked}",${it.length},${a},${b},${c},${d},${e},${it.score},"${it.category}","${it.minterm}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `digital_logic_passwords_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

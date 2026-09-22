@@ -1,0 +1,423 @@
+/* 
+   cyber-logic.css
+   EC2201 Digital Logic Design - Futuristic Cyberpunk & Glassmorphism Theme
+*/
+
+:root {
+  --bg-primary: #070a13;
+  --bg-secondary: #0d1322;
+  --bg-card: rgba(16, 24, 44, 0.72);
+  --bg-card-hover: rgba(22, 34, 62, 0.85);
+  --border-cyan: rgba(0, 242, 254, 0.25);
+  --border-purple: rgba(127, 0, 255, 0.35);
+  
+  --neon-cyan: #00f2fe;
+  --neon-blue: #4facfe;
+  --neon-purple: #9d4edd;
+  --neon-emerald: #00f5a0;
+  --neon-amber: #ffb703;
+  --neon-rose: #ff3366;
+  
+  --text-main: #f0f4f8;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --glow-cyan: 0 0 15px rgba(0, 242, 254, 0.45);
+  --glow-purple: 0 0 20px rgba(157, 78, 221, 0.45);
+  --glow-emerald: 0 0 15px rgba(0, 245, 160, 0.45);
+  --glow-rose: 0 0 15px rgba(255, 51, 102, 0.45);
+  
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(127, 0, 255, 0.1) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(0, 245, 160, 0.05) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glassmorphism Card */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-cyan);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 12px 40px 0 rgba(0, 242, 254, 0.15);
+}
+
+.glass-card-purple {
+  border-color: var(--border-purple);
+}
+.glass-card-purple:hover {
+  border-color: rgba(157, 78, 221, 0.6);
+  box-shadow: 0 12px 40px 0 rgba(157, 78, 221, 0.18);
+}
+
+/* Navbar */
+.navbar-cyber {
+  background: rgba(10, 15, 28, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+.navbar-cyber .navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--neon-cyan), #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-cyber .nav-link {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.navbar-cyber .nav-link:hover,
+.navbar-cyber .nav-link.active {
+  color: var(--neon-cyan);
+  background: rgba(0, 242, 254, 0.08);
+  box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.1);
+}
+
+/* Hero Section */
+.hero-glow-title {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 10%, var(--neon-cyan) 60%, #b388ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+}
+
+.badge-course {
+  background: rgba(157, 78, 221, 0.2);
+  color: #c77dff;
+  border: 1px solid rgba(157, 78, 221, 0.4);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 30px;
+}
+
+/* Digital Logic LED Indicator Component */
+.logic-led {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.logic-led.led-high {
+  background-color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan), 0 0 20px rgba(0, 242, 254, 0.6);
+}
+
+.logic-led.led-low {
+  background-color: #2b1118;
+  border: 1px solid #771d2b;
+  box-shadow: none;
+}
+
+.logic-led.led-emerald {
+  background-color: var(--neon-emerald);
+  box-shadow: 0 0 12px var(--neon-emerald), 0 0 20px rgba(0, 245, 160, 0.6);
+}
+
+.logic-led.led-rose {
+  background-color: var(--neon-rose);
+  box-shadow: 0 0 12px var(--neon-rose), 0 0 20px rgba(255, 51, 102, 0.6);
+}
+
+.logic-led.led-amber {
+  background-color: var(--neon-amber);
+  box-shadow: 0 0 12px var(--neon-amber), 0 0 20px rgba(255, 183, 3, 0.6);
+}
+
+/* Binary Attribute Card */
+.attribute-chip {
+  background: rgba(13, 19, 34, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.attribute-chip.active {
+  background: rgba(0, 242, 254, 0.06);
+  border-color: rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.12);
+}
+
+.attribute-chip .var-badge {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.15rem;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.attribute-chip.active .var-badge {
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+}
+
+/* Digital Strength Meter */
+.strength-meter-container {
+  background: rgba(10, 15, 28, 0.6);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.strength-meter-bar {
+  height: 14px;
+  border-radius: 8px;
+  transition: width 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.strength-meter-bar.weak {
+  width: 20%;
+  background: linear-gradient(90deg, #ff416c, #ff4b2b);
+  box-shadow: var(--glow-rose);
+}
+
+.strength-meter-bar.medium {
+  width: 60%;
+  background: linear-gradient(90deg, #f7b733, #fc4a1a);
+  box-shadow: 0 0 15px rgba(247, 183, 51, 0.5);
+}
+
+.strength-meter-bar.strong {
+  width: 80%;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  box-shadow: var(--glow-cyan);
+}
+
+.strength-meter-bar.very-strong {
+  width: 100%;
+  background: linear-gradient(90deg, #00f2fe, #00f5a0);
+  box-shadow: var(--glow-emerald);
+}
+
+/* Digital Logic Circuits & Gates Display */
+.gate-box {
+  background: rgba(10, 18, 36, 0.9);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  box-shadow: inset 0 0 12px rgba(0, 242, 254, 0.08);
+}
+
+.gate-box .gate-name {
+  color: var(--neon-cyan);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+}
+
+/* Table styling for Truth Table & Datasets */
+.table-cyber {
+  color: var(--text-main);
+  background: transparent !important;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+}
+
+.table-cyber thead th {
+  background: rgba(13, 20, 38, 0.85);
+  color: var(--neon-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  padding: 12px 14px;
+}
+
+.table-cyber tbody tr {
+  background: rgba(18, 27, 50, 0.6);
+  transition: all 0.2s ease;
+}
+
+.table-cyber tbody tr:hover {
+  background: rgba(26, 40, 75, 0.8);
+  transform: translateY(-1px);
+}
+
+.table-cyber tbody tr.active-minterm-row {
+  background: rgba(0, 242, 254, 0.18) !important;
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+}
+
+.table-cyber tbody td {
+  border: none;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+
+/* Buttons */
+.btn-cyber-primary {
+  background: linear-gradient(135deg, #00f2fe, #4facfe);
+  color: #070a13;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 20px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+}
+
+.btn-cyber-primary:hover {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0, 242, 254, 0.45);
+}
+
+.btn-cyber-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-main);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 10px;
+  padding: 9px 20px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.btn-cyber-secondary:hover {
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
+/* Form Controls */
+.form-cyber {
+  background: rgba(13, 19, 34, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.form-cyber:focus {
+  background: rgba(16, 25, 45, 0.95);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+  color: #ffffff;
+  outline: none;
+}
+
+.form-cyber::placeholder {
+  color: var(--text-dim);
+}
+
+/* Category Badges */
+.badge-strength-weak {
+  background: rgba(255, 51, 102, 0.15);
+  color: #ff4d6d;
+  border: 1px solid rgba(255, 51, 102, 0.4);
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.badge-strength-medium {
+  background: rgba(255, 183, 3, 0.15);
+  color: #ffb703;
+  border: 1px solid rgba(255, 183, 3, 0.4);
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.badge-strength-strong {
+  background: rgba(0, 210, 255, 0.15);
+  color: #00d2ff;
+  border: 1px solid rgba(0, 210, 255, 0.4);
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.badge-strength-very-strong {
+  background: rgba(0, 245, 160, 0.15);
+  color: #00f5a0;
+  border: 1px solid rgba(0, 245, 160, 0.4);
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: rgba(8, 12, 22, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Print CSS for Formal Academic Report */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #1a202c !important;
+  }
+  .navbar-cyber, footer, .no-print, .btn {
+    display: none !important;
+  }
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    color: #1a202c !important;
+  }
+  .table-cyber thead th {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+  .table-cyber tbody tr {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

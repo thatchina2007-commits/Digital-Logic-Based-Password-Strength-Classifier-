@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Project Report | EC2201 Digital Logic Evaluation Sheet{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    .navbar, footer, .no-print {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .report-sheet {
+        box-shadow: none !important;
+        border: 1px solid #333 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .text-muted {
+        color: #555555 !important;
+    }
+    .text-white {
+        color: #000000 !important;
+    }
+    .badge {
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Controls (Hidden during print) -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+        <div>
+            <span class="badge-course mb-1">LAB REPORT GENERATOR</span>
+            <h2 class="fw-bold hero-glow-title mb-0">Project Evaluation Report</h2>
+            <small class="text-muted">Formatted for academic mini-project submission and lab record.</small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button onclick="window.print()" class="btn btn-cyber-primary">
+                <i class="fa-solid fa-print me-1"></i> Print / Save as PDF
+            </button>
+            <button onclick="downloadReportCsv()" class="btn btn-cyber-secondary">
+                <i class="fa-solid fa-file-csv me-1"></i> Export as CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Password Selector Form (Hidden during print) -->
+    <div class="glass-card p-4 mb-4 no-print">
+        <label class="form-label text-muted small">Select or Enter Credential to Generate Specific Report:</label>
+        <div class="input-group">
+            <input type="text" id="reportPasswordInput" class="form-control form-cyber font-monospace" value="EC2201#SecurePass2026!">
+            <button class="btn btn-cyber-primary" type="button" onclick="generateSpecificReport()">
+                <i class="fa-solid fa-arrows-rotate me-1"></i> Update Report Sheet
+            </button>
+        </div>
+    </div>
+
+    <!-- Printable Project Report Sheet -->
+    <div class="glass-card report-sheet p-4 p-md-5" id="printableReportSheet">
+        <!-- Academic Sheet Header -->
+        <div class="border-bottom border-secondary pb-4 mb-4 text-center">
+            <div class="text-uppercase tracking-wide text-info fw-bold small">Department of Electronics & Communication Engineering</div>
+            <h3 class="fw-bold my-2 text-white">EC2201 - Digital Logic Design Mini Project</h3>
+            <h5 class="text-muted mb-3">Password Strength Classification using Combinational Logic</h5>
+            <div class="d-flex flex-wrap justify-content-center gap-3 font-monospace small text-muted">
+                <span>Date & Time: <strong class="text-white" id="reportTimestamp">2026-09-20 17:30:00</strong></span>
+                <span>•</span>
+                <span>Evaluation Standard: <strong class="text-info">5-Bit Popcount Adder & 3-Bit Comparator</strong></span>
+            </div>
+        </div>
+
+        <!-- Section A: Input Credential Metadata -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-info text-uppercase mb-3"><i class="fa-solid fa-fingerprint me-2"></i>1. Evaluated Credential Specification</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 bg-dark border border-secondary">
+                        <small class="text-muted d-block">Masked Credential Identity:</small>
+                        <span class="fs-5 fw-bold font-monospace text-white" id="reportPasswordMasked">E****************!</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-3 bg-dark border border-secondary">
+                        <small class="text-muted d-block">String Length:</small>
+                        <span class="fs-5 fw-bold font-monospace text-info" id="reportLength">20 chars</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 rounded-3 bg-dark border border-secondary">
+                        <small class="text-muted d-block">Truth Table Minterm:</small>
+                        <span class="fs-5 fw-bold font-monospace text-success" id="reportMinterm">m31</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section B: Extracted Binary Attributes Table -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-info text-uppercase mb-3"><i class="fa-solid fa-list-ol me-2"></i>2. Binary Input Vector Attributes</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark table-sm font-monospace text-center mb-0">
+                    <thead>
+                        <tr class="text-info">
+                            <th>Variable</th>
+                            <th>Logic Criterion Description</th>
+                            <th>State (0 / 1)</th>
+                            <th>Status Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportAttributesBody">
+                        <tr>
+                            <td><strong>A</strong></td>
+                            <td class="text-start">Length >= 8 characters</td>
+                            <td id="rep-val-A" class="text-success fw-bold">1</td>
+                            <td id="rep-status-A"><span class="badge bg-success">Satisfied</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>B</strong></td>
+                            <td class="text-start">Contains Uppercase Letter [A-Z]</td>
+                            <td id="rep-val-B" class="text-success fw-bold">1</td>
+                            <td id="rep-status-B"><span class="badge bg-success">Satisfied</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>C</strong></td>
+                            <td class="text-start">Contains Lowercase Letter [a-z]</td>
+                            <td id="rep-val-C" class="text-success fw-bold">1</td>
+                            <td id="rep-status-C"><span class="badge bg-success">Satisfied</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>D</strong></td>
+                            <td class="text-start">Contains Numerical Digit [0-9]</td>
+                            <td id="rep-val-D" class="text-success fw-bold">1</td>
+                            <td id="rep-status-D"><span class="badge bg-success">Satisfied</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>E</strong></td>
+                            <td class="text-start">Contains Special Character [!@#$%^...]</td>
+                            <td id="rep-val-E" class="text-success fw-bold">1</td>
+                            <td id="rep-status-E"><span class="badge bg-success">Satisfied</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section C: Hardware Circuit Trace & Comparator -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-info text-uppercase mb-3"><i class="fa-solid fa-diagram-project me-2"></i>3. Logic Circuit State & Evaluation Trace</h6>
+            <div class="p-3 rounded-3 bg-dark border border-secondary font-monospace small">
+                <div class="row gy-2">
+                    <div class="col-md-6">
+                        <div><strong>Stage 1 (FA₁ &amp; HA₁):</strong> <span id="reportStage1Trace">FA1 Sum=1, Cout=1 | HA1 Sum=0, Cout=1</span></div>
+                        <div><strong>Stage 2 (HA₂ LSB):</strong> <span id="reportStage2Trace">Sum S0 = 1, Carry C3 = 0</span></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div><strong>Stage 3 (FA₂ Carries):</strong> <span id="reportStage3Trace">Bit 1 S1 = 0, MSB S2 = 1</span></div>
+                        <div><strong>Binary Output (S₂ S₁ S₀):</strong> <span class="text-info fw-bold" id="reportBinaryOut">101₂ (= 5 Decimal)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section D: Final Classification -->
+        <div class="p-4 rounded-3 bg-dark border border-secondary mb-4 text-center">
+            <h6 class="text-muted text-uppercase small mb-2">Final Classification & Resilience Tier</h6>
+            <div class="display-4 fw-bold font-monospace mb-2" id="reportCategory">VERY STRONG</div>
+            <div class="fs-5 text-info font-monospace mb-2" id="reportScore">Score: 5 / 5 (Hamming Weight)</div>
+            <p class="text-muted mb-0 mx-auto" style="max-width: 600px;" id="reportDesc">
+                Maximum resilience. Satisfies all 5 security logic conditions (A, B, C, D, E). Immune to common automated dictionary and rainbow table strikes.
+            </p>
+        </div>
+
+        <!-- Section E: Academic Sign-off -->
+        <div class="row pt-4 text-center font-monospace small text-muted gy-4 border-top border-secondary">
+            <div class="col-4">
+                <div class="border-top border-secondary pt-2 mt-4">Student Signature</div>
+            </div>
+            <div class="col-4">
+                <div class="border-top border-secondary pt-2 mt-4">Lab Instructor / Evaluator</div>
+            </div>
+            <div class="col-4">
+                <div class="border-top border-secondary pt-2 mt-4">Grade & Stamp</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentReportData = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateSpecificReport();
+});
+
+async function generateSpecificReport() {
+    const pwd = document.getElementById('reportPasswordInput')?.value || 'Admin@2026';
+    try {
+        const res = await fetch('/api/classify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pwd })
+        });
+        if (!res.ok) throw new Error('Evaluation failed');
+        const data = await res.json();
+        currentReportData = data;
+        updateReportSheet(data, pwd);
+    } catch (err) {
+        console.error('Report generation error:', err);
+    }
+}
+
+function updateReportSheet(data, rawPwd) {
+    document.getElementById('reportTimestamp').textContent = new Date().toLocaleString();
+    document.getElementById('reportPasswordMasked').textContent = data.password_masked;
+    document.getElementById('reportLength').textContent = `${data.length} chars`;
+    document.getElementById('reportMinterm').textContent = data.minterm;
+
+    const attrs = data.attributes;
+    const keys = ['A', 'B', 'C', 'D', 'E'];
+    keys.forEach(k => {
+        const val = attrs[k];
+        const valEl = document.getElementById(`rep-val-${k}`);
+        const statusEl = document.getElementById(`rep-status-${k}`);
+        if (valEl) {
+            valEl.textContent = val;
+            valEl.className = val === 1 ? 'text-success fw-bold' : 'text-danger fw-bold';
+        }
+        if (statusEl) {
+            statusEl.innerHTML = val === 1 
+                ? '<span class="badge bg-success">Satisfied</span>' 
+                : '<span class="badge bg-danger">Not Satisfied</span>';
+        }
+    });
+
+    const circuit = data.circuit_trace;
+    document.getElementById('reportStage1Trace').textContent = 
+        `FA1 Sum=${circuit.stage1.FA1.Sum}, Cout=${circuit.stage1.FA1.Carry} | HA1 Sum=${circuit.stage1.HA1.Sum}, Cout=${circuit.stage1.HA1.Carry}`;
+    document.getElementById('reportStage2Trace').textContent = 
+        `Sum S0 = ${circuit.stage2.HA2.S0}, Carry C3 = ${circuit.stage2.HA2.C3}`;
+    document.getElementById('reportStage3Trace').textContent = 
+        `Bit 1 S1 = ${circuit.stage3.FA2.S1}, MSB S2 = ${circuit.stage3.FA2.S2}`;
+    document.getElementById('reportBinaryOut').textContent = 
+        `${circuit.binary_output}₂ (= ${data.score} Decimal)`;
+
+    const catEl = document.getElementById('reportCategory');
+    catEl.textContent = data.category.toUpperCase();
+    if (data.category === 'Very Strong') catEl.className = 'display-4 fw-bold font-monospace mb-2 text-success';
+    else if (data.category === 'Strong') catEl.className = 'display-4 fw-bold font-monospace mb-2 text-info';
+    else if (data.category === 'Medium') catEl.className = 'display-4 fw-bold font-monospace mb-2 text-warning';
+    else catEl.className = 'display-4 fw-bold font-monospace mb-2 text-danger';
+
+    document.getElementById('reportScore').textContent = `Score: ${data.score} / 5 (Hamming Weight)`;
+    document.getElementById('reportDesc').textContent = data.description;
+}
+
+function downloadReportCsv() {
+    if (!currentReportData) return;
+    const d = currentReportData;
+    let csv = "Field,Value\n";
+    csv += `Timestamp,"${new Date().toISOString()}"\n`;
+    csv += `Password Masked,"${d.password_masked}"\n`;
+    csv += `Length,${d.length}\n`;
+    csv += `Flag A (Len>=8),${d.attributes.A}\n`;
+    csv += `Flag B (Upper),${d.attributes.B}\n`;
+    csv += `Flag C (Lower),${d.attributes.C}\n`;
+    csv += `Flag D (Digit),${d.attributes.D}\n`;
+    csv += `Flag E (Symbol),${d.attributes.E}\n`;
+    csv += `Minterm,"${d.minterm}"\n`;
+    csv += `Adder Output Binary,"${d.circuit_trace.binary_output}"\n`;
+    csv += `Total Score,${d.score}\n`;
+    csv += `Classification,"${d.category}"\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `evaluation_report_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %}

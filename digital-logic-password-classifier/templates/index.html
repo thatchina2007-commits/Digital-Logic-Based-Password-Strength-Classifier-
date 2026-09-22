@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Digital Logic Based Password Strength Classifier (EC2201){% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 position-relative overflow-hidden">
+    <div class="container py-4">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-7">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 mb-3 rounded-pill bg-dark border border-secondary">
+                    <span class="logic-led led-emerald"></span>
+                    <span class="text-info font-monospace small">EC2201 Digital Logic Design Mini Project</span>
+                </div>
+                <h1 class="display-4 fw-bold hero-glow-title mb-3">
+                    Digital Logic Based <br>
+                    <span class="text-info">Password Strength</span> Classifier
+                </h1>
+                <p class="lead text-muted mb-4">
+                    A deterministic hardware-inspired evaluation engine that analyzes password complexity using fundamental
+                    <strong>Boolean Logic</strong>, <strong>Popcount Adder Circuits</strong>, <strong>3-Bit Magnitude Comparators</strong>, and a complete <strong>32-state Truth Table</strong>.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="{{ url_for('classifier_page') }}" class="btn btn-cyber-primary btn-lg">
+                        <i class="fa-solid fa-microchip me-2"></i> Launch Live Classifier
+                    </a>
+                    <a href="{{ url_for('logic_analysis_page') }}" class="btn btn-cyber-secondary btn-lg">
+                        <i class="fa-solid fa-table-cells me-2"></i> View Truth Table (2⁵ = 32)
+                    </a>
+                </div>
+                <div class="row g-3 pt-2">
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary text-center">
+                            <span class="d-block fs-3 fw-bold text-info font-monospace">5 Bits</span>
+                            <small class="text-muted">A, B, C, D, E Inputs</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary text-center">
+                            <span class="d-block fs-3 fw-bold text-success font-monospace">32</span>
+                            <small class="text-muted">Boolean Minterms</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary text-center">
+                            <span class="d-block fs-3 fw-bold text-warning font-monospace">4 Levels</span>
+                            <small class="text-muted">Weak to Very Strong</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Live Demo Card -->
+            <div class="col-lg-5">
+                <div class="glass-card p-4 p-md-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-bolt text-info"></i>
+                            <span class="fw-bold">Interactive Logic Demo</span>
+                        </div>
+                        <span id="minterm-badge" class="badge bg-dark border border-cyan text-info font-monospace">m0</span>
+                    </div>
+
+                    <!-- Input Box -->
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Enter Sample Password</label>
+                        <div class="input-group">
+                            <input type="password" id="passwordInput" class="form-control form-cyber font-monospace" placeholder="Type a password (e.g. Logic#2026)..." value="Admin@2026">
+                            <button class="btn btn-cyber-secondary" type="button" id="toggleVisibilityBtn">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Sample Buttons -->
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        <button type="button" class="btn btn-sm btn-dark border-secondary btn-sample-pwd" data-sample="12345">Pin (Weak)</button>
+                        <button type="button" class="btn btn-sm btn-dark border-secondary btn-sample-pwd" data-sample="password">Dict (Med)</button>
+                        <button type="button" class="btn btn-sm btn-dark border-secondary btn-sample-pwd" data-sample="CyberVault99">AlphaNum (Strong)</button>
+                        <button type="button" class="btn btn-sm btn-dark border-secondary btn-sample-pwd" data-sample="Logic#2026!">Max (V.Strong)</button>
+                    </div>
+
+                    <!-- Real-Time Binary Variable Status (A, B, C, D, E) -->
+                    <div class="mb-3">
+                        <div class="text-muted small mb-2 d-flex justify-content-between">
+                            <span>Binary Input Vector (A, B, C, D, E)</span>
+                            <span id="binary-vector-val" class="font-monospace text-info">00000</span>
+                        </div>
+                        <div class="row g-2 text-center font-monospace">
+                            <div class="col">
+                                <div id="chip-A" class="attribute-chip p-2">
+                                    <div class="small text-muted">A (≥8)</div>
+                                    <span id="led-A" class="logic-led led-low mt-1"></span>
+                                    <div id="val-A" class="small mt-1 text-secondary">0</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="chip-B" class="attribute-chip p-2">
+                                    <div class="small text-muted">B (A-Z)</div>
+                                    <span id="led-B" class="logic-led led-low mt-1"></span>
+                                    <div id="val-B" class="small mt-1 text-secondary">0</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="chip-C" class="attribute-chip p-2">
+                                    <div class="small text-muted">C (a-z)</div>
+                                    <span id="led-C" class="logic-led led-low mt-1"></span>
+                                    <div id="val-C" class="small mt-1 text-secondary">0</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="chip-D" class="attribute-chip p-2">
+                                    <div class="small text-muted">D (0-9)</div>
+                                    <span id="led-D" class="logic-led led-low mt-1"></span>
+                                    <div id="val-D" class="small mt-1 text-secondary">0</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="chip-E" class="attribute-chip p-2">
+                                    <div class="small text-muted">E (Sym)</div>
+                                    <span id="led-E" class="logic-led led-low mt-1"></span>
+                                    <div id="val-E" class="small mt-1 text-secondary">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Popcount & Strength Bar -->
+                    <div class="p-3 rounded-3 bg-dark border border-secondary mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted">Hardware Sum (S₂S₁S₀): <strong id="adder-binary-val" class="text-info font-monospace">000</strong></span>
+                            <span id="categoryBadge" class="badge-strength-weak">Weak</span>
+                        </div>
+                        <div class="strength-meter-container">
+                            <div id="strengthMeterBar" class="strength-meter-bar weak" style="width: 20%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 small">
+                            <span class="text-muted">Total Score: <strong id="total-score-val" class="text-white font-monospace">0 / 5</strong></span>
+                            <span id="categoryDescription" class="text-muted text-end small">Evaluating...</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{{ url_for('classifier_page') }}" class="btn btn-cyber-primary btn-sm">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open Full Circuit Analyzer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-black bg-opacity-25 border-top border-bottom border-secondary border-opacity-25">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge-course mb-2">CORE CAPABILITIES</span>
+            <h2 class="fw-bold hero-glow-title">Engineered for EC2201 Demonstration</h2>
+            <p class="text-muted">Demonstrates fundamental digital logic synthesis from raw input encoding to combinational logic circuits and magnitude comparators.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-microchip"></i></div>
+                    <h5 class="fw-bold">Combinational Adder Tree</h5>
+                    <p class="text-muted small">Implements a hardware popcount adder using Full Adders ($FA$) and Half Adders ($HA$) to sum 5 single-bit attributes into a 3-bit binary output $(S_2S_1S_0)_2$.</p>
+                    <span class="badge bg-dark border border-secondary text-info font-monospace">Sum = A + B + C + D + E</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-table-list"></i></div>
+                    <h5 class="fw-bold">32-Minterm Truth Table</h5>
+                    <p class="text-muted small">Evaluates all $2^5 = 32$ possible combinations from $m_0$ to $m_{31}$, mapping each state to canonical SOP forms, Hamming weights, and security categories.</p>
+                    <span class="badge bg-dark border border-secondary text-success font-monospace">2⁵ = 32 States (m0 - m31)</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <h5 class="fw-bold">3-Bit Magnitude Comparator</h5>
+                    <p class="text-muted small">Applies digital comparator logic equations to classify strength into 4 deterministic intervals: Weak (0-1), Medium (2-3), Strong (4), and Very Strong (5).</p>
+                    <span class="badge bg-dark border border-secondary text-warning font-monospace">Decoder: W, M, S, V</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-vial-virus"></i></div>
+                    <h5 class="fw-bold">Comprehensive Test Suite</h5>
+                    <p class="text-muted small">Built-in 10 Normal test cases and 5 Edge/Fault test cases (empty string, unicode, long mono-chars) verifying 100% logic accuracy.</p>
+                    <span class="badge bg-dark border border-secondary text-info font-monospace">15 Automated Test Cases</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-chart-line"></i></div>
+                    <h5 class="fw-bold">Interactive Analytics Dashboard</h5>
+                    <p class="text-muted small">Visualizes dataset distributions, attribute satisfaction rates, score histograms, and security ratios using Chart.js.</p>
+                    <span class="badge bg-dark border border-secondary text-success font-monospace">Chart.js Visualizations</span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="fs-2 text-info mb-3"><i class="fa-solid fa-file-pdf"></i></div>
+                    <h5 class="fw-bold">Exportable Project Reports</h5>
+                    <p class="text-muted small">Generates formatted project reports for presentation and viva demonstration with instant print/PDF and CSV download options.</p>
+                    <span class="badge bg-dark border border-secondary text-warning font-monospace">PDF & CSV Downloads</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team & Course Details Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="glass-card p-4 p-md-5">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-6">
+                    <span class="badge-course mb-2">EC2201 MINI PROJECT</span>
+                    <h3 class="fw-bold hero-glow-title mb-3">Course & Project Information</h3>
+                    <div class="text-muted mb-4">
+                        <p class="mb-2"><strong>Course Name:</strong> EC2201 - Digital Logic Design</p>
+                        <p class="mb-2"><strong>Project Title:</strong> Digital Logic Based Password Strength Classifier</p>
+                        <p class="mb-2"><strong>Project Type:</strong> Hardware Emulation & Software Prototype</p>
+                        <p class="mb-0"><strong>Objective:</strong> Demonstrating practical combinational logic design, truth tables, full adders, and magnitude comparators applied to real-world cybersecurity.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="p-4 rounded-3 bg-dark border border-secondary">
+                        <h5 class="fw-bold text-info mb-3"><i class="fa-solid fa-users-gear me-2"></i>Project Demonstration Team</h5>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between border-bottom border-secondary pb-2">
+                                <span>Student Name:</span>
+                                <strong class="text-white">EC2201 Project Scholar</strong>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary pb-2">
+                                <span>Roll / Register No:</span>
+                                <strong class="text-white font-monospace">EC2201-DLD-2026</strong>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom border-secondary pb-2">
+                                <span>Department:</span>
+                                <strong class="text-white">Electronics & Communication Engineering</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Supervisor / Faculty:</span>
+                                <strong class="text-info">EC2201 Course Instructor</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Test Case Module | Verification & Validation (EC2201){% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center max-w-800 mx-auto mb-5">
+        <span class="badge-course mb-2">VERIFICATION SUITE</span>
+        <h1 class="fw-bold hero-glow-title">Test Case Module</h1>
+        <p class="lead text-muted">15 pre-configured test scenarios: 10 Normal cases covering all complexity tiers, and 5 Edge/Fault test cases (empty string, whitespace, long strings, unicode).</p>
+    </div>
+
+    <!-- Summary KPI & Run Control -->
+    <div class="glass-card p-4 mb-5">
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-8">
+                <div class="row g-3 text-center">
+                    <div class="col-sm-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary">
+                            <small class="text-muted d-block">Total Tests</small>
+                            <span class="fs-4 fw-bold font-monospace text-white" id="tcTotalVal">15</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary">
+                            <small class="text-muted d-block">Passed</small>
+                            <span class="fs-4 fw-bold font-monospace text-success" id="tcPassedVal">15</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary">
+                            <small class="text-muted d-block">Failed</small>
+                            <span class="fs-4 fw-bold font-monospace text-danger" id="tcFailedVal">0</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="p-3 rounded-3 bg-dark border border-secondary">
+                            <small class="text-muted d-block">Accuracy</small>
+                            <span class="fs-4 fw-bold font-monospace text-info" id="tcAccuracyVal">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end text-center">
+                <button id="runAllTestsBtn" class="btn btn-cyber-primary btn-lg w-100">
+                    <i class="fa-solid fa-play me-2"></i> Run All 15 Test Cases
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-cyber-secondary btn-sm active" data-filter="ALL" id="btnFilterAll">All Tests (15)</button>
+            <button type="button" class="btn btn-cyber-secondary btn-sm" data-filter="Normal" id="btnFilterNormal">Normal Cases (10)</button>
+            <button type="button" class="btn btn-cyber-secondary btn-sm" data-filter="Edge" id="btnFilterEdge">Edge / Fault Cases (5)</button>
+        </div>
+        <span class="text-muted small">Updated in real-time</span>
+    </div>
+
+    <!-- Test Cases Table -->
+    <div class="glass-card p-4">
+        <div class="table-responsive">
+            <table class="table table-cyber align-middle">
+                <thead>
+                    <tr>
+                        <th>TC ID</th>
+                        <th>Type</th>
+                        <th>Test Case Name</th>
+                        <th>Password Sample</th>
+                        <th>Inputs [ABCDE]</th>
+                        <th>Adder (S₂S₁S₀)</th>
+                        <th>Expected</th>
+                        <th>Actual Result</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="testCasesTableBody">
+                    <!-- Populated via script -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let testSuiteData = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadAndRunTestCases();
+
+    document.getElementById('runAllTestsBtn')?.addEventListener('click', () => {
+        loadAndRunTestCases();
+    });
+
+    // Filtering
+    const filterBtns = [document.getElementById('btnFilterAll'), document.getElementById('btnFilterNormal'), document.getElementById('btnFilterEdge')];
+    filterBtns.forEach(btn => {
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b?.classList.remove('active'));
+            btn.classList.add('active');
+            const filterType = btn.getAttribute('data-filter');
+            renderTable(filterType);
+        });
+    });
+});
+
+async function loadAndRunTestCases() {
+    const btn = document.getElementById('runAllTestsBtn');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Executing Logic Gates...';
+
+    try {
+        const response = await fetch('/api/test-cases/run', { method: 'POST' });
+        if (!response.ok) throw new Error('Failed to run test cases');
+        
+        const data = await response.json();
+        testSuiteData = data.results;
+
+        document.getElementById('tcTotalVal').textContent = data.total;
+        document.getElementById('tcPassedVal').textContent = data.passed;
+        document.getElementById('tcFailedVal').textContent = data.failed;
+        document.getElementById('tcAccuracyVal').textContent = `${data.accuracy_rate}%`;
+
+        renderTable('ALL');
+    } catch (err) {
+        console.error('Error executing test cases:', err);
+    } finally {
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-rotate me-2"></i> Re-Run All Test Cases';
+    }
+}
+
+function renderTable(filterType = 'ALL') {
+    const tbody = document.getElementById('testCasesTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    const filtered = (filterType === 'ALL') 
+        ? testSuiteData 
+        : testSuiteData.filter(tc => tc.type === filterType);
+
+    filtered.forEach(tc => {
+        const tr = document.createElement('tr');
+        
+        let badgeClass = 'badge-strength-weak';
+        if (tc.actual_category === 'Medium') badgeClass = 'badge-strength-medium';
+        else if (tc.actual_category === 'Strong') badgeClass = 'badge-strength-strong';
+        else if (tc.actual_category === 'Very Strong') badgeClass = 'badge-strength-very-strong';
+
+        tr.innerHTML = `
+            <td><span class="badge bg-dark border border-secondary font-monospace">${tc.id}</span></td>
+            <td><span class="badge ${tc.type === 'Edge' ? 'bg-warning text-dark' : 'bg-secondary'}">${tc.type}</span></td>
+            <td>
+                <strong>${tc.name}</strong>
+                <div class="text-muted small">${tc.description}</div>
+            </td>
+            <td><code class="text-info">${escapeHtml(tc.password_sample || '[Empty]')}</code></td>
+            <td><span class="font-monospace text-info">${tc.binary_vector}</span></td>
+            <td><span class="badge bg-dark border border-cyan text-info font-monospace">${tc.adder_binary}</span></td>
+            <td><small class="text-muted">${tc.expected_category} (${tc.expected_score})</small></td>
+            <td><span class="${badgeClass}">${tc.actual_category} (${tc.actual_score})</span></td>
+            <td>
+                <span class="badge ${tc.status === 'PASS' ? 'bg-success' : 'bg-danger'}">
+                    <i class="fa-solid ${tc.status === 'PASS' ? 'fa-check' : 'fa-xmark'} me-1"></i> ${tc.status}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-dark border-secondary" onclick="loadIntoClassifier('${encodeURIComponent(tc.password_sample || '')}')" title="Test in Classifier">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function loadIntoClassifier(encodedPwd) {
+    const pwd = decodeURIComponent(encodedPwd);
+    window.location.href = `/classifier?pwd=${encodeURIComponent(pwd)}`;
+}
+</script>
+{% endblock %}
